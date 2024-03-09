@@ -1,0 +1,66 @@
+package main
+
+import (
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+)
+
+type User struct {
+	ID       uint `gorm:"primarykey;AUTO_INCREMENT"`
+	Name     string
+	Password string
+}
+
+func register(context *gin.Context) {
+	dsn := "root:jh407115@tcp(127.0.0.1:3306)/demo?charset=utf8mb4&parseTime=True&loc=Local"
+	db, _ := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
+	db.AutoMigrate(&User{})
+	u := User{}
+	context.BindJSON(&u)
+	rse := db.Where("name = ? AND password = ?", u.Name, u.Password).First(&User{})
+	if rse.RowsAffected != 0 {
+		context.JSON(200, gin.H{
+			"msg": "登陆成功",
+		})
+	} else {
+		context.JSON(200, gin.H{
+			"msg": "登陆失败，用户名或密码不正确!",
+		})
+	}
+}
+func login(context *gin.Context) {
+	dsn := "root:jh407115@tcp(127.0.0.1:3306)/demo?charset=utf8mb4&parseTime=True&loc=Local"
+	db, _ := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
+	db.AutoMigrate(&User{})
+	u := User{}
+	context.BindJSON(&u)
+	//查询用户名
+	res := db.Where("name = ?", u.Name).First(&User{})
+	if res.RowsAffected != 0 {
+		context.JSON(200, gin.H{
+			"msg": "注册失败，用户名已存在！",
+		})
+	} else {
+		db.Create(&u)
+		context.JSON(200, gin.H{
+			"msg": "注册成功",
+		})
+	}
+
+}
+func main() {
+	server := gin.Default()
+	server.Use(cors.Default())
+	//注册
+	server.POST("/user/register", register)
+	//登录
+	server.POST("/user/login", login)
+	server.Run(":8080")
+}
