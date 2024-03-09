@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration and Login Test</title>
+    <script>
+        function registerUser() {
+            const name = document.getElementById('register-name').value;
+            const password = document.getElementById('register-password').value;
+
+            const data = JSON.stringify({
+                Name: name,
+                Password: password
+            });
+
+            fetch('/user/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: data
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.msg);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function loginUser() {
+            const name = document.getElementById('login-name').value;
+            const password = document.getElementById('login-password').value;
+
+            const data = JSON.stringify({
+                Name: name,
+                Password: password
+            });
+
+            fetch('/user/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: data
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.msg);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+</head>
+<body>
+<h1>User Registration</h1>
+<form>
+    <label for="register-name">Name:</label>
+    <input type="text" id="register-name" name="register-name" required>
+    <br>
+    <label for="register-password">Password:</label>
+    <input type="password" id="register-password" name="register-password" required>
+    <br>
+    <button type="button" onclick="registerUser()">Register</button>
+</form>
+
+<h1>User Login</h1>
+<form>
+    <label for="login-name">Name:</label>
+    <input type="text" id="login-name" name="login-name" required>
+    <br>
+    <label for="login-password">Password:</label>
+    <input type="password" id="login-password" name="login-password" required>
+    <br>
+    <button type="button" onclick="loginUser()">Login</button>
+</form>
+</body>
+</html>
